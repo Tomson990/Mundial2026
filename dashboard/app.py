@@ -1,11 +1,13 @@
 """
 Dashboard Streamlit — WC 2026 Predictor
-Correr con: /Users/tomasdelfino/miniconda3/bin/python -m streamlit run dashboard/app.py
+Correr con: streamlit run dashboard/app.py
 """
 
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 import json
 import pickle
 import os
@@ -31,7 +33,7 @@ st.markdown("""
 
 @st.cache_resource
 def load_models():
-    models  = {}
+    models   = {}
     dc_path  = os.path.join(DATA_PROC, 'dixon_coles.pkl')
     xgb_path = os.path.join(DATA_PROC, 'xgboost_model.pkl')
     try:
@@ -54,7 +56,7 @@ def load_ratings():
     path = os.path.join(DATA_PROC, 'elo_ratings.csv')
     if not os.path.exists(path):
         return {}
-    df = pd.read_csv(path)
+    df       = pd.read_csv(path)
     cols     = df.columns.tolist()
     team_col = next((c for c in cols if 'team'   in c.lower()), cols[0])
     rat_col  = next((c for c in cols if 'elo'    in c.lower() or 'rating' in c.lower()), cols[-1])
@@ -93,11 +95,17 @@ def make_predictor(models, ratings):
         preds.append({'home_win': p_h*(1-draw_p), 'draw': draw_p, 'away_win': (1-p_h)*(1-draw_p)})
         weights.append(1)
         if 'dc' in models:
-            p = models['dc'].predict_result(home, away)
-            if p: preds.append(p); weights.append(2)
+            try:
+                p = models['dc'].predict_result(home, away)
+                if p: preds.append(p); weights.append(2)
+            except Exception:
+                pass
         if 'gb' in models:
-            p = models['gb'].predict_from_ratings(home, away, ratings, dc_model=models.get('dc'), neutral=neutral)
-            if p: preds.append(p); weights.append(2)
+            try:
+                p = models['gb'].predict_from_ratings(home, away, ratings, dc_model=models.get('dc'), neutral=neutral)
+                if p: preds.append(p); weights.append(2)
+            except Exception:
+                pass
         w_total = sum(weights)
         return {
             'home_win': sum(p['home_win']*w for p,w in zip(preds,weights)) / w_total,
@@ -107,17 +115,13 @@ def make_predictor(models, ratings):
     return predictor
 
 
-def bar_html(pct, color):
-    return f'<div style="background:{color};width:{pct:.0f}%;height:8px;border-radius:4px;display:inline-block"></div>'
-
-
 def main():
     st.title("⚽ WC 2026 Predictor")
     st.markdown("*Ensemble Elo + Dixon-Coles + XGBoost · Monte Carlo 5,000 simulaciones*")
 
-    models  = load_models()
-    ratings = load_ratings()
-    groups  = load_groups()
+    models    = load_models()
+    ratings   = load_ratings()
+    groups    = load_groups()
     all_teams = sorted(set(list(ratings.keys()) + [t for grp in groups.values() for t in grp]))
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
@@ -133,10 +137,9 @@ def main():
         st.header("Probabilidades de Campeón")
         mc = load_mc_results()
         if mc is not None:
-            import plotly.express as px
-            top20 = mc.dropna(subset=['team']).head(10)
+            top10 = mc.dropna(subset=['team']).head(10)
             fig = px.bar(
-                top20, x='champion', y='team', orientation='h',
+                top10, x='champion', y='team', orientation='h',
                 color='champion', color_continuous_scale='Blues',
                 labels={'champion': '%', 'team': ''},
                 title='Top 10 — Probabilidad de ganar el Mundial'
@@ -160,44 +163,36 @@ def main():
     # ── TAB 2: Fase de Grupos ─────────────────────────────────────
     with tab2:
         st.header("Fase de Grupos — Prode")
-
         prode_df = load_prode()
 
         if prode_df is not None:
-            # Filtro por grupo
             group_options = ['Todos'] + sorted(prode_df['group'].unique())
             selected = st.selectbox("Filtrar por grupo", group_options)
-
-            df_show = prode_df if selected == 'Todos' else prode_df[prode_df['group'] == selected]
+            df_show  = prode_df if selected == 'Todos' else prode_df[prode_df['group'] == selected]
 
             for grp in sorted(df_show['group'].unique()):
                 grp_teams = groups.get(grp, [])
                 st.markdown(f"<div class='group-header'><b>Grupo {grp}</b> &nbsp;·&nbsp; {' &nbsp;·&nbsp; '.join(grp_teams)}</div>", unsafe_allow_html=True)
-
                 grp_df = df_show[df_show['group'] == grp].copy()
                 grp_df['Partido']  = grp_df['home'] + ' vs ' + grp_df['away']
                 grp_df['Local %']  = grp_df['home_win'].apply(lambda x: f"{x:.1f}%")
                 grp_df['Empate %'] = grp_df['draw'].apply(lambda x: f"{x:.1f}%")
                 grp_df['Visit. %'] = grp_df['away_win'].apply(lambda x: f"{x:.1f}%")
                 grp_df['Favorito'] = grp_df['fav']
-
                 st.dataframe(
                     grp_df[['Partido', 'Local %', 'Empate %', 'Visit. %', 'Favorito']],
                     use_container_width=True, hide_index=True
                 )
                 st.markdown("")
-
         else:
-            st.info("Todavía no generaste el prode. Corré en la terminal:")
-            st.code("python pipeline.py --prode")
-            st.markdown("O generalo acá:")
+            st.info("Generá el prode desde la terminal: `python pipeline.py --prode`")
             if st.button("🗂️ Generar Prode ahora", type="primary"):
                 if not groups:
                     st.error("No se encontró wc2026_groups.json")
                 else:
                     predictor = make_predictor(models, ratings)
-                    rows = []
-                    progress = st.progress(0)
+                    rows      = []
+                    progress  = st.progress(0)
                     group_list = sorted(groups.items())
                     for i, (grp, teams) in enumerate(group_list):
                         for home, away in combinations(teams, 2):
@@ -208,10 +203,9 @@ def main():
                                          'home_win': round(hw,1), 'draw': round(dw,1),
                                          'away_win': round(aw,1), 'fav': fav})
                         progress.progress((i+1) / len(group_list))
-
                     result_df = pd.DataFrame(rows)
                     result_df.to_csv(os.path.join(DATA_PROC, 'prode_grupos.csv'), index=False)
-                    st.success("✓ Prode generado. Recargá la página para verlo.")
+                    st.success("✓ Listo. Recargá la página.")
                     st.cache_data.clear()
 
     # ── TAB 3: Simulador de Partido ───────────────────────────────
@@ -239,24 +233,30 @@ def main():
             with c3: st.metric(f"✈️ {away_team}",  f"{pred['away_win']*100:.1f}%")
 
             if 'dc' in models:
-                matrix = models['dc'].predict_scoreline(home_team, away_team)
-                if matrix is not None:
-                    import plotly.graph_objects as go
-                    max_g = 5
-                    mat   = matrix[:max_g+1, :max_g+1]
-                    mat   = mat / mat.sum() * 100
-                    fig   = go.Figure(data=go.Heatmap(
-                        z=mat, x=[str(i) for i in range(max_g+1)], y=[str(i) for i in range(max_g+1)],
-                        colorscale='Blues',
-                        text=[[f"{mat[i,j]:.1f}%" for j in range(max_g+1)] for i in range(max_g+1)],
-                        texttemplate="%{text}", showscale=False,
-                    ))
-                    fig.update_layout(
-                        title=f"Marcadores — {home_team} (filas) vs {away_team} (columnas)",
-                        xaxis_title=f"Goles {away_team}", yaxis_title=f"Goles {home_team}",
-                        plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)', font_color='#c8d8ff',
-                    )
-                    st.plotly_chart(fig, use_container_width=True)
+                try:
+                    matrix = models['dc'].predict_scoreline(home_team, away_team)
+                    if matrix is not None:
+                        max_g = 5
+                        mat   = matrix[:max_g+1, :max_g+1]
+                        mat   = mat / mat.sum() * 100
+                        fig   = go.Figure(data=go.Heatmap(
+                            z=mat,
+                            x=[str(i) for i in range(max_g+1)],
+                            y=[str(i) for i in range(max_g+1)],
+                            colorscale='Blues',
+                            text=[[f"{mat[i,j]:.1f}%" for j in range(max_g+1)] for i in range(max_g+1)],
+                            texttemplate="%{text}", showscale=False,
+                        ))
+                        fig.update_layout(
+                            title=f"Marcadores — {home_team} (filas) vs {away_team} (columnas)",
+                            xaxis_title=f"Goles {away_team}",
+                            yaxis_title=f"Goles {home_team}",
+                            plot_bgcolor='rgba(0,0,0,0)', paper_bgcolor='rgba(0,0,0,0)',
+                            font_color='#c8d8ff',
+                        )
+                        st.plotly_chart(fig, use_container_width=True)
+                except Exception:
+                    pass
 
     # ── TAB 4: Rankings ───────────────────────────────────────────
     with tab4:
@@ -272,12 +272,17 @@ def main():
         with col_dc:
             st.subheader("🟠 Dixon-Coles")
             if 'dc' in models:
-                dc_df = models['dc'].get_team_params()
-                if not dc_df.empty:
-                    dc_df.columns = ['Equipo', 'Ataque', 'Defensa', 'Overall']
-                    st.dataframe(dc_df.head(30).round(3), use_container_width=True)
-                else:
-                    st.info("Sin datos suficientes para los equipos del mundial.")
+                try:
+                    dc_df = models['dc'].get_team_params()
+                    if not dc_df.empty:
+                        dc_df.columns = ['Equipo', 'Ataque', 'Defensa', 'Overall']
+                        st.dataframe(dc_df.head(30).round(3), use_container_width=True)
+                    else:
+                        st.info("Sin datos suficientes.")
+                except Exception:
+                    st.info("Dixon-Coles no disponible en este entorno.")
+            else:
+                st.info("Dixon-Coles no disponible.")
 
     # ── TAB 5: Monte Carlo ────────────────────────────────────────
     with tab5:
