@@ -34,12 +34,18 @@ def load_models():
     models  = {}
     dc_path  = os.path.join(DATA_PROC, 'dixon_coles.pkl')
     xgb_path = os.path.join(DATA_PROC, 'xgboost_model.pkl')
-    if os.path.exists(dc_path):
-        with open(dc_path, 'rb') as f:
-            models['dc'] = pickle.load(f)
-    if os.path.exists(xgb_path):
-        with open(xgb_path, 'rb') as f:
-            models['gb'] = pickle.load(f)
+    try:
+        if os.path.exists(dc_path):
+            with open(dc_path, 'rb') as f:
+                models['dc'] = pickle.load(f)
+    except Exception:
+        pass
+    try:
+        if os.path.exists(xgb_path):
+            with open(xgb_path, 'rb') as f:
+                models['gb'] = pickle.load(f)
+    except Exception:
+        pass
     return models
 
 
