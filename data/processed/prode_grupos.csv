@@ -1,0 +1,73 @@
+group,home,away,home_win,draw,away_win,fav
+A,Mexico,South Korea,36.1,25.7,38.2,South Korea
+A,Mexico,South Africa,63.1,21.1,15.8,Mexico
+A,Mexico,Czech Republic,49.9,28.4,21.6,Mexico
+A,South Korea,South Africa,59.5,23.8,16.7,South Korea
+A,South Korea,Czech Republic,47.7,30.0,22.3,South Korea
+A,South Africa,Czech Republic,26.5,29.3,44.2,Czech Republic
+B,Canada,Switzerland,28.3,25.3,46.5,Switzerland
+B,Canada,Qatar,58.7,24.3,17.1,Canada
+B,Canada,Bosnia and Herzegovina,60.4,22.3,17.3,Canada
+B,Switzerland,Qatar,62.6,21.6,15.7,Switzerland
+B,Switzerland,Bosnia and Herzegovina,63.1,19.1,17.8,Switzerland
+B,Qatar,Bosnia and Herzegovina,37.5,28.2,34.3,Qatar
+C,Brazil,Morocco,41.5,25.0,33.5,Brazil
+C,Brazil,Scotland,63.0,20.1,16.9,Brazil
+C,Brazil,Haiti,67.2,17.5,15.2,Brazil
+C,Morocco,Scotland,52.9,26.4,20.6,Morocco
+C,Morocco,Haiti,57.5,24.8,17.7,Morocco
+C,Scotland,Haiti,40.2,27.3,32.6,Scotland
+D,United States,Australia,28.4,25.1,46.5,Australia
+D,United States,Paraguay,31.4,24.5,44.2,Paraguay
+D,United States,Turkey,29.8,24.6,45.6,Turkey
+D,Australia,Paraguay,40.1,25.1,34.8,Australia
+D,Australia,Turkey,37.2,25.9,37.0,Australia
+D,Paraguay,Turkey,34.4,25.4,40.2,Turkey
+E,Germany,Ecuador,32.6,25.7,41.7,Ecuador
+E,Germany,Ivory Coast,49.5,27.0,23.5,Germany
+E,Germany,Curacao,75.5,14.3,10.1,Germany
+E,Ecuador,Ivory Coast,50.9,27.5,21.5,Ecuador
+E,Ecuador,Curacao,76.3,14.4,9.3,Ecuador
+E,Ivory Coast,Curacao,67.8,20.0,12.2,Ivory Coast
+F,Netherlands,Japan,30.3,22.8,46.9,Japan
+F,Netherlands,Tunisia,50.8,26.8,22.4,Netherlands
+F,Netherlands,Sweden,55.5,24.5,19.9,Netherlands
+F,Japan,Tunisia,53.3,25.0,21.7,Japan
+F,Japan,Sweden,58.2,22.2,19.6,Japan
+F,Tunisia,Sweden,40.8,29.2,30.0,Tunisia
+G,Belgium,Iran,34.6,24.3,41.1,Iran
+G,Belgium,Egypt,48.7,26.2,25.1,Belgium
+G,Belgium,New Zealand,52.3,27.3,20.4,Belgium
+G,Iran,Egypt,47.0,26.5,26.5,Iran
+G,Iran,New Zealand,50.0,26.2,23.8,Iran
+G,Egypt,New Zealand,40.2,26.5,33.2,Egypt
+H,Spain,Uruguay,53.9,23.2,22.9,Spain
+H,Spain,Saudi Arabia,66.2,16.8,17.0,Spain
+H,Spain,Cape Verde,68.0,16.0,15.9,Spain
+H,Uruguay,Saudi Arabia,56.6,26.1,17.3,Uruguay
+H,Uruguay,Cape Verde,61.5,21.8,16.7,Uruguay
+H,Saudi Arabia,Cape Verde,37.8,27.7,34.5,Saudi Arabia
+I,France,Senegal,53.4,24.3,22.3,France
+I,France,Norway,57.6,22.9,19.5,France
+I,France,Iraq,64.8,17.2,18.1,France
+I,Senegal,Norway,40.1,25.0,34.9,Senegal
+I,Senegal,Iraq,47.6,26.7,25.8,Senegal
+I,Norway,Iraq,42.1,28.8,29.1,Norway
+J,Argentina,Austria,65.5,16.4,18.1,Argentina
+J,Argentina,Algeria,58.2,22.8,19.0,Argentina
+J,Argentina,Jordan,68.1,17.2,14.7,Argentina
+J,Austria,Algeria,31.5,25.4,43.1,Algeria
+J,Austria,Jordan,39.5,27.1,33.4,Austria
+J,Algeria,Jordan,42.4,28.2,29.4,Algeria
+K,Portugal,Colombia,26.1,23.8,50.1,Colombia
+K,Portugal,Uzbekistan,50.2,24.8,25.0,Portugal
+K,Portugal,DR Congo,50.9,28.8,20.2,Portugal
+K,Colombia,Uzbekistan,51.6,25.7,22.7,Colombia
+K,Colombia,DR Congo,50.3,27.8,21.9,Colombia
+K,Uzbekistan,DR Congo,39.2,29.8,31.0,Uzbekistan
+L,England,Croatia,40.5,25.2,34.3,England
+L,England,Panama,56.0,24.0,20.0,England
+L,England,Ghana,64.4,19.0,16.6,England
+L,Croatia,Panama,48.4,25.5,26.1,Croatia
+L,Croatia,Ghana,59.6,23.8,16.5,Croatia
+L,Panama,Ghana,48.3,27.3,24.4,Panama
